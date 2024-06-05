@@ -5,7 +5,6 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
-
 # Create your views here.
 
 
@@ -59,3 +58,22 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return HttpResponseRedirect(reverse('home'))
+
+@login_required
+def profile_display(request):
+    username=request.session.get('username')
+    UO=User.objects.get(username=username)
+    PO=Profile.objects.get(username=UO)
+    d={'UO':UO,'PO':PO}
+    return render(request,'profile_display.html',d)
+
+@login_required
+def change_password(request):
+    if request.method=="POST":
+        username=request.session.get('username')
+        UO=User.objects.get(username=username)
+        nw=request.POST['nw']
+        UO.set_password(nw)
+        UO.save()
+        return HttpResponse('Password Changed Sucessfully')
+    return render(request,'change_password.html')
